@@ -2,7 +2,6 @@
 	graph
 	This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -28,9 +27,11 @@ impl Graph for UndirectedGraph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>> {
         &self.adjacency_table
     }
+    /* 
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
     }
+    */
 }
 pub trait Graph {
     fn new() -> Self;
@@ -38,10 +39,40 @@ pub trait Graph {
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
         //TODO
-		true
+		// 检查是否存在节点不存在就创建
+        if self.contains(node) {
+            false
+        }
+        else {
+            self.adjacency_table_mutable().insert(node.to_string(), Vec::new());
+            true
+        }
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        // 边的信息, 两个节点, 一个权重
+        let (node1, node2, weight) = edge;
+        // 确保两个节点都能用
+        if !self.contains(node1) {
+            self.add_node(node1);
+        }
+        if !self.contains(node2) {
+            self.add_node(node2);
+        }
+
+        // 获取邻接表的可变引用
+        let adj_table = self.adjacency_table_mutable();
+
+        // add node1->node2
+        adj_table
+            .get_mut(&node1.to_string())
+            .unwrap()
+            .push((node2.to_string(), weight));
+        // add node2->node1
+        adj_table
+            .get_mut(&node2.to_string())
+            .unwrap()
+            .push((node1.to_string(), weight));
     }
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
