@@ -2,7 +2,6 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -52,13 +51,13 @@ impl<T> Default for Queue<T> {
     }
 }
 
-pub struct myStack<T>
+pub struct MyStack<T>
 {
 	//TODO
 	q1:Queue<T>,
 	q2:Queue<T>
 }
-impl<T> myStack<T> {
+impl<T> MyStack<T> {
     pub fn new() -> Self {
         Self {
 			//TODO
@@ -68,14 +67,47 @@ impl<T> myStack<T> {
     }
     pub fn push(&mut self, elem: T) {
         //TODO
+        // 压入元素时，优先压入主队列
+        // 哪个队列不为空，哪个队列就是主队列
+        // 如果都为空则压入一号队列
+        // pop()操作保证正常情况下，两个队列，至少有一个是空的
+        if !self.q1.is_empty() {
+            self.q1.enqueue(elem);
+        }
+        else if !self.q2.is_empty() {
+            self.q2.enqueue(elem);
+        }
+        else {
+            self.q1.enqueue(elem);
+        }
     }
     pub fn pop(&mut self) -> Result<T, &str> {
         //TODO
-		Err("Stack is empty")
+        // 如果栈为空
+        if self.is_empty() {
+            return Err("Stack is empty");
+        }
+		// 确定主队列
+        let (full, empty) = if !self.q1.is_empty() {
+            (&mut self.q1, &mut self.q2)
+        } else {
+            (&mut self.q2, &mut self.q1)
+        };
+        // 把主队列除了最后一个元素外的其他元素移入空队列，则最后一个元素为要出栈的
+        // 出栈后，原来的主队列为空，变为辅助队列
+        while full.size() > 1 {
+            if let Ok(val) = full.dequeue() {
+                empty.enqueue(val);
+            }
+        }
+        // 弹出主队列的最后一个元素
+        full.dequeue()
     }
+    
     pub fn is_empty(&self) -> bool {
 		//TODO
-        true
+        // 当两个队列都为空时，栈为空
+        self.q1.is_empty() && self.q2.is_empty()
     }
 }
 
@@ -85,7 +117,7 @@ mod tests {
 	
 	#[test]
 	fn test_queue(){
-		let mut s = myStack::<i32>::new();
+		let mut s = MyStack::<i32>::new();
 		assert_eq!(s.pop(), Err("Stack is empty"));
         s.push(1);
         s.push(2);
